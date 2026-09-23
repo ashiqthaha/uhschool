@@ -1,0 +1,123 @@
+{
+ "actions": [],
+ "allow_bulk_edit": 1,
+ "allow_rename": 1,
+ "autoname": "format:LOG-{#####}",
+ "creation": "2026-09-23 07:25:06.275928",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "tutoring_session",
+  "student",
+  "tutor",
+  "level_assessment",
+  "visible_to_guardian",
+  "notes_section",
+  "topics_covered",
+  "homework",
+  "tutor_notes"
+ ],
+ "fields": [
+  {
+   "fieldname": "tutoring_session",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Tutoring Session",
+   "options": "Tutoring Session",
+   "reqd": 1
+  },
+  {
+   "fetch_from": "tutoring_session.student",
+   "fieldname": "student",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Student",
+   "options": "Student",
+   "read_only": 1
+  },
+  {
+   "fetch_from": "tutoring_session.tutor",
+   "fieldname": "tutor",
+   "fieldtype": "Link",
+   "label": "Tutor",
+   "options": "Tutor",
+   "read_only": 1
+  },
+  {
+   "fieldname": "level_assessment",
+   "fieldtype": "Select",
+   "label": "Level Assessment",
+   "options": "Beginner\nCan speak\nCan read\nCan write"
+  },
+  {
+   "default": "1",
+   "fieldname": "visible_to_guardian",
+   "fieldtype": "Check",
+   "label": "Visible To Guardian"
+  },
+  {
+   "fieldname": "notes_section",
+   "fieldtype": "Section Break",
+   "label": "Notes Section"
+  },
+  {
+   "fieldname": "topics_covered",
+   "fieldtype": "Small Text",
+   "label": "Topics Covered"
+  },
+  {
+   "fieldname": "homework",
+   "fieldtype": "Small Text",
+   "label": "Homework"
+  },
+  {
+   "description": "Private to tutors unless shown to guardian",
+   "fieldname": "tutor_notes",
+   "fieldtype": "Text",
+   "label": "Tutor Notes"
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2026-09-23 07:25:06.275928",
+ "modified_by": "Administrator",
+ "module": "Uh-school",
+ "name": "Progress Log",
+ "naming_rule": "Expression (old style)",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Tutor",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "rows_threshold_for_grid_search": 20,
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}
