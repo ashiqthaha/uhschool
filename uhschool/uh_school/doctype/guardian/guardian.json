@@ -13,7 +13,16 @@
   "email",
   "phone",
   "timezone",
-  "preferred_contact"
+  "preferred_contact",
+  "plan_section",
+  "extra_students",
+  "extra_spectators",
+  "plan_col",
+  "student_limit",
+  "spectator_limit",
+  "consent_section",
+  "consent_given",
+  "consent_on"
  ],
  "fields": [
   {
@@ -55,12 +64,68 @@
    "fieldtype": "Select",
    "label": "Preferred Contact",
    "options": "Email\nPhone\nWhatsApp"
+  },
+  {
+   "description": "Base plan: 1 kid and 1 spectator slot. Everything else is an add-on.",
+   "fieldname": "plan_section",
+   "fieldtype": "Section Break",
+   "label": "Plan"
+  },
+  {
+   "default": "0",
+   "fieldname": "extra_students",
+   "fieldtype": "Int",
+   "label": "Add-on: extra kids"
+  },
+  {
+   "default": "0",
+   "description": "Each slot lets one more device watch a session at the same time.",
+   "fieldname": "extra_spectators",
+   "fieldtype": "Int",
+   "label": "Add-on: extra spectator slots"
+  },
+  {
+   "fieldname": "plan_col",
+   "fieldtype": "Column Break",
+   "label": "Plan Col"
+  },
+  {
+   "default": "1",
+   "fieldname": "student_limit",
+   "fieldtype": "Int",
+   "label": "Kids allowed",
+   "read_only": 1
+  },
+  {
+   "default": "1",
+   "fieldname": "spectator_limit",
+   "fieldtype": "Int",
+   "label": "Spectator slots",
+   "read_only": 1
+  },
+  {
+   "fieldname": "consent_section",
+   "fieldtype": "Section Break",
+   "label": "Consent"
+  },
+  {
+   "default": "0",
+   "description": "Covers the child's account, session recordings if enabled, and logging of viewing devices and IP addresses.",
+   "fieldname": "consent_given",
+   "fieldtype": "Check",
+   "label": "Parent consent recorded"
+  },
+  {
+   "fieldname": "consent_on",
+   "fieldtype": "Datetime",
+   "label": "Consent recorded on",
+   "read_only": 1
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2026-09-23 07:25:05.890050",
+ "modified": "2026-09-23 15:07:31.329709",
  "modified_by": "Administrator",
  "module": "Uh-school",
  "name": "Guardian",
@@ -88,6 +153,18 @@
    "read": 1,
    "report": 1,
    "role": "Tutor",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Headmaster",
    "share": 1,
    "write": 1
   }
