@@ -1,11 +1,11 @@
 from datetime import timedelta
 from urllib.parse import quote
-from zoneinfo import ZoneInfo
 
 import frappe
 from frappe import _
-from frappe.utils import get_datetime, get_system_timezone, now_datetime
+from frappe.utils import now_datetime
 
+from uhschool.timezones import format_for_user, user_timezone
 from uhschool.video import STAFF_ROLES, join_window
 
 no_cache = 1
@@ -26,19 +26,13 @@ def get_context(context):
 
 
 def my_sessions(user):
-    """Classes from 3 hours ago to 7 days ahead that this user can join, in their own timezone."""
+    """Classes from 3 hours ago to 7 days ahead that this user can join, in their home time zone."""
     tutors = frappe.get_all("Tutor", filters={"user": user}, pluck="name")
     students = frappe.get_all("Student", filters={"user": user}, pluck="name")
     guardians = frappe.get_all("Guardian", filters={"user": user}, fields=["name", "timezone"])
     is_staff = bool(STAFF_ROLES & set(frappe.get_roles(user)))
 
-    tz = (
-        frappe.db.get_value("Tutor", tutors[0], "timezone") if tutors
-        else guardians[0].timezone if guardians
-        else frappe.db.get_value("Guardian", frappe.db.get_value("Student", students[0], "guardian"),
-                                 "timezone") if students
-        else None
-    ) or get_system_timezone()
+    tz = user_timezone(user)  # the person's home time zone
 
     now = now_datetime()
     filters = {
@@ -58,21 +52,18 @@ def my_sessions(user):
         order_by="starts_at asc", limit=50,
     )
 
-    sys_tz, view_tz = ZoneInfo(get_system_timezone()), ZoneInfo(tz)
     out = []
     for r in rows:
         opens, closes = join_window(r)
         if now > closes:
             continue
-        local = get_datetime(r.starts_at).replace(tzinfo=sys_tz).astimezone(view_tz)
-        opens_local = opens.replace(tzinfo=sys_tz).astimezone(view_tz)
         out.append({
             "name": r.name,
             "student": frappe.db.get_value("Student", r.student, "first_name"),
             "tutor": frappe.db.get_value("Tutor", r.tutor, "full_name"),
-            "when": local.strftime("%a %d %b, %I:%M %p").replace(" 0", " "),
+            "when": format_for_user(r.starts_at, tz=tz),
             "duration": r.duration,
             "can_join": opens <= now,
-            "opens": opens_local.strftime("%I:%M %p").lstrip("0"),
+            "opens": format_for_user(opens, tz=tz, fmt="%I:%M %p").lstrip("0"),
         })
     return tz, out

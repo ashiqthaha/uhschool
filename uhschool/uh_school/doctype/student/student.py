@@ -4,6 +4,8 @@ import frappe
 from frappe import _
 from frappe.model.document import Document
 
+from uhschool.timezones import set_user_timezone
+
 STUDENT_EMAIL_DOMAIN = "students.uhschool.ashiqthaha.com"  # placeholder, never mailed
 
 
@@ -27,6 +29,8 @@ class Student(Document):
             self.create_account()
         else:
             frappe.db.set_value("User", self.user, "enabled", 1 if self.active else 0)
+        # kids live on their family's home time zone
+        set_user_timezone(self.user, frappe.db.get_value("Guardian", self.guardian, "timezone"))
 
     def create_account(self):
         username = self.make_username()

@@ -3,11 +3,15 @@ from frappe import _
 from frappe.model.document import Document
 from frappe.utils import cint, now_datetime
 
+from uhschool.timezones import sync_family, validate_timezone
+
 
 class Guardian(Document):
     def validate(self):
         if not self.user and not self.email:
             frappe.throw(_("A family account needs an email address."))
+        self.timezone = (self.timezone or "").strip() or "America/New_York"
+        validate_timezone(self.timezone)
         self.set_plan_limits()
         if self.consent_given and not self.consent_on:
             self.consent_on = now_datetime()
@@ -30,8 +34,11 @@ class Guardian(Document):
                                    active, self.student_limit))
 
     def on_update(self):
-        if self.user:
-            return
+        if not self.user:
+            self.create_account()
+        sync_family(self.name)
+
+    def create_account(self):
         existing = frappe.db.exists("User", self.email)
         if existing:
             user = frappe.get_doc("User", existing)
