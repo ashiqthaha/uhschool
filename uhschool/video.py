@@ -4,7 +4,7 @@ Site config keys (bench --site <site> set-config <key> <value>):
     livekit_api_key, livekit_api_secret   required
     livekit_url            public signaling URL, e.g. wss://rtc-uhschool.ashiqthaha.com
     livekit_host           server-side API URL (default http://localhost:7880)
-    video_app_url          our Meet fork (default https://meet-uhschool.ashiqthaha.com)
+    video_app_url          our Meet fork (default /meet, served on this same site via the tunnel)
     video_join_before_min  how early people may join (default 10)
     video_join_after_min   how long after the end people may join (default 15)
 """
@@ -199,7 +199,7 @@ def get_token(session, device_id):
 
     token = make_token(doc.name, identity, display_name, role)
     url = _conf("livekit_url")
-    video_app = _conf("video_app_url", "https://meet-uhschool.ashiqthaha.com").rstrip("/")
+    video_app = _conf("video_app_url", "/meet").rstrip("/")
     return {
         "role": role,
         "room": doc.name,
