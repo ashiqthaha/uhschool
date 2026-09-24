@@ -1,0 +1,101 @@
+{% extends "templates/web.html" %}
+
+{% block page_content %}
+<div class="uh-join">
+	<h2>{{ _("Your classes") }}</h2>
+	<p class="text-muted small">{{ _("Times shown in") }} {{ tz }}</p>
+
+	<div id="uh-join-msg" class="alert alert-warning" style="display:none"></div>
+
+	{% if sessions %}
+	<table class="table">
+		<thead>
+			<tr><th>{{ _("When") }}</th><th>{{ _("Student") }}</th><th>{{ _("Tutor") }}</th><th></th></tr>
+		</thead>
+		<tbody>
+		{% for s in sessions %}
+			<tr>
+				<td>{{ s.when }}<br><span class="text-muted small">{{ s.duration }} {{ _("min") }}</span></td>
+				<td>{{ s.student }}</td>
+				<td>{{ s.tutor }}</td>
+				<td class="text-right">
+				{% if s.can_join %}
+					<button class="btn btn-primary btn-sm uh-join-btn" data-session="{{ s.name }}">{{ _("Join") }}</button>
+				{% else %}
+					<span class="text-muted small">{{ _("Opens") }} {{ s.opens }}</span>
+				{% endif %}
+				</td>
+			</tr>
+		{% endfor %}
+		</tbody>
+	</table>
+	{% else %}
+	<p>{{ _("No classes in the next 7 days.") }}</p>
+	{% endif %}
+</div>
+{% endblock %}
+
+{% block script %}
+{{ super() }}
+<script>
+// frappe.csrf_token is set by a script placed after this block, so start on DOMContentLoaded
+document.addEventListener("DOMContentLoaded", function () {
+	var AUTO_JOIN = {{ auto_join | tojson }};
+
+	function deviceId() {
+		var id;
+		try { id = localStorage.getItem("uh_device_id"); } catch (e) {}
+		if (!id) {
+			id = (window.crypto && crypto.randomUUID) ? crypto.randomUUID()
+				: "d" + Date.now().toString(36) + Math.random().toString(36).slice(2, 12);
+			try { localStorage.setItem("uh_device_id", id); } catch (e) {}
+		}
+		return id;
+	}
+
+	function showError(text) {
+		var box = document.getElementById("uh-join-msg");
+		box.textContent = text;
+		box.style.display = "block";
+		window.scrollTo(0, 0);
+	}
+
+	function serverMessage(data) {
+		try {
+			var msgs = JSON.parse(data._server_messages || "[]");
+			if (msgs.length) return JSON.parse(msgs[msgs.length - 1]).message;
+		} catch (e) {}
+		return "Couldn't join the class. Please try again.";
+	}
+
+	function join(session, btn) {
+		if (btn) { btn.disabled = true; btn.textContent = "Joining…"; }
+		var body = new URLSearchParams({ session: session, device_id: deviceId() });
+		fetch("/api/method/uhschool.video.get_token", {
+			method: "POST",
+			headers: { "X-Frappe-CSRF-Token": frappe.csrf_token, "Accept": "application/json" },
+			body: body,
+		})
+			.then(function (r) { return r.json(); })
+			.then(function (data) {
+				if (data.message && data.message.join_url) {
+					window.location.href = data.message.join_url;
+				} else {
+					showError(serverMessage(data));
+					if (btn) { btn.disabled = false; btn.textContent = "Join"; }
+				}
+			})
+			.catch(function () {
+				showError("Network problem. Check your connection and try again.");
+				if (btn) { btn.disabled = false; btn.textContent = "Join"; }
+			});
+	}
+
+	document.querySelectorAll(".uh-join-btn").forEach(function (btn) {
+		btn.addEventListener("click", function () { join(btn.dataset.session, btn); });
+	});
+
+	if (AUTO_JOIN) join(AUTO_JOIN, document.querySelector('.uh-join-btn[data-session="' + AUTO_JOIN + '"]'));
+});
+</script>
+{% endblock %}

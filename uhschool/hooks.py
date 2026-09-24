@@ -262,3 +262,10 @@ app_license = "mit"
 # List of apps whose translatable strings should be excluded from this app's translations.
 # ignore_translatable_strings_from = []
 
+
+# Video: settle classes whose join window has closed (Completed / No-show, close open attendance rows)
+scheduler_events = {
+	"cron": {
+		"*/10 * * * *": ["uhschool.video.close_finished_sessions"],
+	},
+}
