@@ -27,9 +27,9 @@ def get_context(context):
 
 def my_sessions(user):
     """Classes from 3 hours ago to 7 days ahead that this user can join, in their own timezone."""
-    tutors = frappe.get_all("Tutor", {"user": user}, pluck="name")
-    students = frappe.get_all("Student", {"user": user}, pluck="name")
-    guardians = frappe.get_all("Guardian", {"user": user}, fields=["name", "timezone"])
+    tutors = frappe.get_all("Tutor", filters={"user": user}, pluck="name")
+    students = frappe.get_all("Student", filters={"user": user}, pluck="name")
+    guardians = frappe.get_all("Guardian", filters={"user": user}, fields=["name", "timezone"])
     is_staff = bool(STAFF_ROLES & set(frappe.get_roles(user)))
 
     tz = (
@@ -47,7 +47,7 @@ def my_sessions(user):
     }
     if not is_staff:
         kids = students + frappe.get_all(
-            "Student", {"guardian": ["in", [g.name for g in guardians] or [""]]}, pluck="name")
+            "Student", filters={"guardian": ["in", [g.name for g in guardians] or [""]]}, pluck="name")
         or_filters = {"tutor": ["in", tutors or [""]], "student": ["in", kids or [""]]}
     else:
         or_filters = None
