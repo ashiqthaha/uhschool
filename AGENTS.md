@@ -30,6 +30,12 @@ Public URL is served through a Cloudflare tunnel.
   Web pages and messages must convert with `uhschool/timezones.py` (`to_user_time`, `to_system_time`, `format_for_user`).
   Tutor Availability stays in tutor-local wall time (default Asia/Kolkata).
 
+## Sandbox
+By default you run sandboxed: you can write only inside your working dir (and /tmp), and there is no network, so
+`bench execute`, the database, Redis, npm/pip installs and web access won't work. If a task needs one of those, say so
+under **Doubts** instead of working around it. A prompt that starts with `sandbox: off` runs unsandboxed; every rule
+below still applies.
+
 ## Rules for every task
 1. Stay inside the app root (or `~/uhschool-meet` when the prompt says so). Do only what the prompt asks.
 2. Never read, print or edit `~/frappe-bench/sites/*/site_config.json` or `common_site_config.json`, and never
