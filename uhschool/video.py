@@ -236,6 +236,58 @@ def make_token(room, identity, display_name, role):
     )
 
 
+# ---------------------------------------------------------------- whiteboard
+
+
+@frappe.whitelist(methods=["GET"])
+def board_csrf():
+    if frappe.session.user == "Guest":
+        frappe.throw(_("Please sign in to save the board."), frappe.AuthenticationError)
+
+    return frappe.sessions.get_csrf_token()
+
+
+@frappe.whitelist(methods=["POST"])
+def save_board(session):
+    user = frappe.session.user
+    if user == "Guest":
+        frappe.throw(_("Please sign in to save the board."), frappe.AuthenticationError)
+
+    doc = frappe.db.get_value(
+        "Tutoring Session", session, ["name", "student", "tutor"], as_dict=True,
+    )
+    if not doc:
+        frappe.throw(_("Class not found."), frappe.DoesNotExistError)
+
+    try:
+        role, _display_name = decide_role(doc, user)
+    except frappe.PermissionError:
+        role = None
+    if role != "Tutor":
+        frappe.throw(_("Only the tutor can save the board."), frappe.PermissionError)
+
+    upload = frappe.request.files.get("file")
+    if upload is None:
+        frappe.throw(_("Please upload a PNG file."))
+
+    max_size = 10 * 1024 * 1024
+    content = upload.stream.read(max_size + 1)
+    if len(content) > max_size:
+        frappe.throw(_("The board image must be 10 MB or smaller."))
+    if not content.startswith(b"\x89PNG\r\n\x1a\n"):
+        frappe.throw(_("The board image must be a PNG file."))
+
+    file = frappe.get_doc({
+        "doctype": "File",
+        "file_name": f"board-{doc.name}-{now_datetime():%Y%m%d-%H%M%S}.png",
+        "is_private": 1,
+        "attached_to_doctype": "Tutoring Session",
+        "attached_to_name": doc.name,
+        "content": content,
+    }).insert(ignore_permissions=True)
+    return {"file_url": file.file_url, "file_name": file.file_name}
+
+
 # ---------------------------------------------------------------- webhook
 
 
