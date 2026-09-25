@@ -11,10 +11,13 @@ Public URL is served through a Cloudflare tunnel.
 ## Layout
 - App root (your working dir): `~/frappe-bench/apps/uhschool`
 - DocTypes: `uhschool/uh_school/doctype/<name>/` (JSON + .py + .js)
-- Video: `uhschool/video.py` (LiveKit tokens, webhook, scheduler `close_finished_sessions`)
+- Video: `uhschool/video.py` (LiveKit tokens, webhook, scheduler `close_finished_sessions`, whiteboard
+  `board_csrf` + `save_board`: tutor saves the class board PNG on the Tutoring Session)
 - `/join` web page: `uhschool/www/join.*`
 - API: `uhschool/api.py` (e.g. `switch_to_student`)
-- Meet fork (Next.js, separate repo): `~/uhschool-meet`, branch `uhschool`, basePath `/meet`
+- Meet fork (Next.js, separate repo): `~/uhschool-meet`, branch `uhschool`, basePath `/meet`. Class page
+  `app/class/*` has the Present menu (Camera / Whiteboard / Share screen) and an Excalidraw board synced over
+  LiveKit text streams (topic `uh-board`, `lib/board/`)
 
 ## Domain rules (don't break these)
 - Guardian = family account; saving it creates a Website User (role Guardian). Limits: `student_limit`, `spectator_limit`.
